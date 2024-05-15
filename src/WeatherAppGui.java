@@ -100,15 +100,26 @@ public class WeatherAppGui extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 // helyseg kerese a felhasznalotol
-                String userInput = searchTextField.getText();
+                String userInput = searchTextField.getText().trim();
+
+                // ha nincs bemenet
+                if(userInput.isEmpty()){
+                    showErrorDialog("Kérlek irj be egy helységet!");
+                    return;
+                }
+
+                // idojaras adatok visszaadasa
+                weatherData = WeatherApp.getWeatherData(userInput);
 
                 //helyesse tesszuk a helyseget, kitoroljuk a spaceket
                 if(userInput.replaceAll("\\s", "").length() <= 0){
                     return;
                 }
 
-                // idojaras adatok visszaadasa
-                weatherData = WeatherApp.getWeatherData(userInput);
+                if(weatherData == null){
+                    showErrorDialog("Helytelen helység! Kérlek próbáld újra!");
+                    return;
+                }
 
                 // kep frissitese
                 String weatherCondition = (String) weatherData.get("weather_condition");
@@ -162,5 +173,9 @@ public class WeatherAppGui extends JFrame {
 
         System.out.println("Could not find resource");
         return null;
+    }
+
+    private void showErrorDialog(String message){
+        JOptionPane.showMessageDialog(this, message, "Hiba", JOptionPane.ERROR_MESSAGE);
     }
 }

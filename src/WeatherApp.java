@@ -18,6 +18,11 @@ public class WeatherApp {
         // megkeresi a helyseget koordinatak alapjan (geolocation API)
         JSONArray locationData = getLocationData(locationName);
 
+        // ha a helyseg adatai nincsenek megadva, teritsen vissza null - t
+        if(locationData == null || locationData.isEmpty()){
+            return null;
+        }
+
         // hosszusag es szelesseg adatok
         JSONObject location = (JSONObject) locationData.get(0);
         double latitude = (double) location.get("latitude");

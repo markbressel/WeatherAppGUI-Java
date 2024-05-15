@@ -8,7 +8,7 @@ public class AppLauncher {
                 // display our weather app gui
                 new WeatherAppGui().setVisible(true);
 
-//                System.out.println(WeatherApp.getLocationData("Budapest"));
+                System.out.println(WeatherApp.getLocationData(""));
 
 //                System.out.println(WeatherApp.getCurrentTime());
 
