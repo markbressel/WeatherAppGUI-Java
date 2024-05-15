@@ -13,149 +13,148 @@ public class WeatherAppGui extends JFrame {
     private JSONObject weatherData;
 
     public WeatherAppGui(){
-        // setup our gui and add a title
-        super("Weather App");
+        // a GUI cime
+        super("Időjárás");
 
-        // configure gui to end the program's process once it has been closed
+        // program kilepese
         setDefaultCloseOperation(EXIT_ON_CLOSE);
 
-        // set the size of our gui (in pixels)
+        // az ablak merete pixelben
         setSize(450, 650);
 
-        // load our gui at the center of the screen
+        // az aplikaciot az ablak kozepere tesszuk inditaskor
         setLocationRelativeTo(null);
 
-        // make our layout manager null to manually position our components within the gui
+        // automatikus elrendezes
         setLayout(null);
 
-        // prevent any resize of our gui
+        // ne lehessen meretezni
         setResizable(false);
 
         addGuiComponents();
     }
 
     private void addGuiComponents(){
-        // search field
+        // kereso felulet
         JTextField searchTextField = new JTextField();
 
-        // set the location and size of our component
+        // a kereso helye es merete
         searchTextField.setBounds(15, 15, 351, 45);
 
-        // change the font style and size
+        // betu stilusa es merete
         searchTextField.setFont(new Font("Dialog", Font.PLAIN, 24));
 
+        // hozzaadas
         add(searchTextField);
 
-        // weather image
+        // idojaras kepek
         JLabel weatherConditionImage = new JLabel(loadImage("src/assets/cloudy.png"));
         weatherConditionImage.setBounds(0, 125, 450, 217);
         add(weatherConditionImage);
 
-        // temperature text
-        JLabel temperatureText = new JLabel("10 C");
+        // idojaras szoveg
+        JLabel temperatureText = new JLabel("10 ℃");
         temperatureText.setBounds(0, 350, 450, 54);
         temperatureText.setFont(new Font("Dialog", Font.BOLD, 48));
 
-        // center the text
+        // idojaras szovegenek kozepre helyezese
         temperatureText.setHorizontalAlignment(SwingConstants.CENTER);
         add(temperatureText);
 
-        // weather condition description
-        JLabel weatherConditionDesc = new JLabel("Cloudy");
+        // idojaras leiras
+        JLabel weatherConditionDesc = new JLabel("Felhős");
         weatherConditionDesc.setBounds(0, 405, 450, 36);
         weatherConditionDesc.setFont(new Font("Dialog", Font.PLAIN, 32));
         weatherConditionDesc.setHorizontalAlignment(SwingConstants.CENTER);
         add(weatherConditionDesc);
 
-        // humidity image
+        // paratartalom kep hozzaadasa
         JLabel humidityImage = new JLabel(loadImage("src/assets/humidity.png"));
         humidityImage.setBounds(15, 500, 74, 66);
         add(humidityImage);
 
-        // humidity text
-        JLabel humidityText = new JLabel("<html><b>Humidity</b> 100%</html>");
-        humidityText.setBounds(90, 500, 85, 55);
+        // paratartalom leirasa
+        JLabel humidityText = new JLabel("<html><b>Páratartalom</b> 100%</html>");
+        humidityText.setBounds(90, 500, 97, 55);
         humidityText.setFont(new Font("Dialog", Font.PLAIN, 16));
         add(humidityText);
 
-        // windspeed image
+        // szelsebesseg kep hozzaadasa
         JLabel windspeedImage = new JLabel(loadImage("src/assets/windspeed.png"));
         windspeedImage.setBounds(220, 500, 74, 66);
         add(windspeedImage);
 
-        // windspeed text
-        JLabel windspeedText = new JLabel("<html><b>Windspeed</b> 15km/h</html>");
-        windspeedText.setBounds(310, 500, 85, 55);
+        // szelsebesseg leirasa
+        JLabel windspeedText = new JLabel("<html><b>Szélsebesség</b> 15km/h</html>");
+        windspeedText.setBounds(310, 500, 150, 55);
         windspeedText.setFont(new Font("Dialog", Font.PLAIN, 16));
         add(windspeedText);
 
-        // search button
+        // kereso gomb
         JButton searchButton = new JButton(loadImage("src/assets/search.png"));
 
-        // change the cursor to a hand cursor when hovering over this button
+        // eger megvaltoztatasa amikor a gombon van
         searchButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         searchButton.setBounds(375, 13, 47, 45);
         searchButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // get location from user
+                // helyseg kerese a felhasznalotol
                 String userInput = searchTextField.getText();
 
-                // validate input - remove whitespace to ensure non-empty text
+                //helyesse tesszuk a helyseget, kitoroljuk a spaceket
                 if(userInput.replaceAll("\\s", "").length() <= 0){
                     return;
                 }
 
-                // retrieve weather data
+                // idojaras adatok visszaadasa
                 weatherData = WeatherApp.getWeatherData(userInput);
 
-                // update gui
-
-                // update weather image
+                // kep frissitese
                 String weatherCondition = (String) weatherData.get("weather_condition");
 
-                // depending on the condition, we will update the weather image that corresponds with the condition
+                // allapottol fuggoen frissitjuk a kepet, ami megeggyezik az allapottal
                 switch(weatherCondition){
-                    case "Clear":
+                    case "Tiszta":
                         weatherConditionImage.setIcon(loadImage("src/assets/clear.png"));
                         break;
-                    case "Cloudy":
+                    case "Felhős":
                         weatherConditionImage.setIcon(loadImage("src/assets/cloudy.png"));
                         break;
-                    case "Rain":
+                    case "Eső":
                         weatherConditionImage.setIcon(loadImage("src/assets/rain.png"));
                         break;
-                    case "Snow":
+                    case "Hó":
                         weatherConditionImage.setIcon(loadImage("src/assets/snow.pngImage"));
                         break;
                 }
 
-                // update temperature text
+                // homerseklet szoveg frissitese
                 double temperature = (double) weatherData.get("temperature");
-                temperatureText.setText(temperature + " C");
+                temperatureText.setText(temperature + " ℃");
 
-                // update weather condition text
+                // allapot frissitese
                 weatherConditionDesc.setText(weatherCondition);
 
-                // update humidity text
+                // paratartalom frissitese
                 long humidity = (long) weatherData.get("humidity");
-                humidityText.setText("<html><b>Humidity</b> " + humidity + "%</html>");
+                humidityText.setText("<html><b>Páratartalom</b> " + humidity + "%</html>");
 
-                // update windspeed text
+                // szelsebesseg frissitese
                 double windspeed = (double) weatherData.get("windspeed");
-                windspeedText.setText("<html><b>Windspeed</b> " + windspeed + "km/h</html>");
+                windspeedText.setText("<html><b>Szélsebesség</b> " + windspeed + "km/h</html>");
             }
         });
         add(searchButton);
     }
 
-    // used to create images in our gui components
+    //kep krealasa a GUI komponensekhez
     private ImageIcon loadImage(String resourcePath){
         try{
-            // read the image file from the path given
+            //kep kiolvasasa a fajlbol
             BufferedImage image = ImageIO.read(new File(resourcePath));
 
-            // returns an image icon so that our component can render it
+            //visszateriti a kep ikont, tehat ki tudjuk olvasni
             return new ImageIcon(image);
         }catch(IOException e){
             e.printStackTrace();
@@ -165,12 +164,3 @@ public class WeatherAppGui extends JFrame {
         return null;
     }
 }
-
-
-
-
-
-
-
-
-

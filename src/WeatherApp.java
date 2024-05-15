@@ -9,79 +9,79 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Scanner;
 
-// retreive weather data from API - this backend logic will fetch the latest weather
-// data from the external API and return it. The GUI will
-// display this data to the user
+// ez a backend resz ami vissza fogja teriteni a legkesobbi
+// idojaras adatokat feluletnek, es lathatova teszi majd
+// a felhasznalo szamara
 public class WeatherApp {
-    // fetch weather data for given location
+    // idojaras adatok kiirasa megadott helyrol
     public static JSONObject getWeatherData(String locationName){
-        // get location coordinates using the geolocation API
+        // megkeresi a helyseget koordinatak alapjan (geolocation API)
         JSONArray locationData = getLocationData(locationName);
 
-        // extract latitude and longitude data
+        // hosszusag es szelesseg adatok
         JSONObject location = (JSONObject) locationData.get(0);
         double latitude = (double) location.get("latitude");
         double longitude = (double) location.get("longitude");
 
-        // build API request URL with location coordinates
+        //API epitese az URL koordinatak alapjan
         String urlString = "https://api.open-meteo.com/v1/forecast?" +
                 "latitude=" + latitude + "&longitude=" + longitude +
-                "&hourly=temperature_2m,relativehumidity_2m,weathercode,windspeed_10m&timezone=America%2FLos_Angeles";
+                "&hourly=temperature_2m,relativehumidity_2m,weathercode,windspeed_10m&timezone=auto";
 
         try{
-            // call api and get response
+            // API meghivasa es valasza
             HttpURLConnection conn = fetchApiResponse(urlString);
 
-            // check for response status
-            // 200 - means that the connection was a success
+            //megnezzuk a valaszt
+            // 200 azt jelenti hogy a kapcsolodas sikeres volt
             if(conn.getResponseCode() != 200){
                 System.out.println("Error: Could not connect to API");
                 return null;
             }
 
-            // store resulting json data
+            // eredmeny eltarolasa json bol
             StringBuilder resultJson = new StringBuilder();
             Scanner scanner = new Scanner(conn.getInputStream());
             while(scanner.hasNext()){
-                // read and store into the string builder
+                //kiolvassuk es eltaroljuk az adatot egy string builder - be
                 resultJson.append(scanner.nextLine());
             }
 
-            // close scanner
+            //scanner bezarasa
             scanner.close();
 
-            // close url connection
+            //url kapcsolat bezarasa
             conn.disconnect();
 
-            // parse through our data
+            // atalakitas
             JSONParser parser = new JSONParser();
             JSONObject resultJsonObj = (JSONObject) parser.parse(String.valueOf(resultJson));
 
-            // retrieve hourly data
+            //orai adatok lekerese
             JSONObject hourly = (JSONObject) resultJsonObj.get("hourly");
 
-            // we want to get the current hour's data
-            // so we need to get the index of our current hour
+            //szeretnenk tudni a mostani orai adatokat
+            // kell a mostnai ora indexe hozza
             JSONArray time = (JSONArray) hourly.get("time");
             int index = findIndexOfCurrentTime(time);
 
-            // get temperature
+            // homerseklet kerese
             JSONArray temperatureData = (JSONArray) hourly.get("temperature_2m");
             double temperature = (double) temperatureData.get(index);
 
-            // get weather code
+            // idojaras kod
             JSONArray weathercode = (JSONArray) hourly.get("weathercode");
             String weatherCondition = convertWeatherCode((long) weathercode.get(index));
 
-            // get humidity
+            // paratartalom lekerese
             JSONArray relativeHumidity = (JSONArray) hourly.get("relativehumidity_2m");
             long humidity = (long) relativeHumidity.get(index);
 
-            // get windspeed
+            // szelsebesseg lekerese
             JSONArray windspeedData = (JSONArray) hourly.get("windspeed_10m");
             double windspeed = (double) windspeedData.get(index);
 
-            // build the weather json data object that we are going to access in our frontend
+            // az idojaras JSON datum objektum osszeallitasa amit fel fogunk hasznalni a frontend be
             JSONObject weatherData = new JSONObject();
             weatherData.put("temperature", temperature);
             weatherData.put("weather_condition", weatherCondition);
@@ -96,45 +96,45 @@ public class WeatherApp {
         return null;
     }
 
-    // retrieves geographic coordinates for given location name
+    // megtalalja a koordinatat az adott helyseg neverol
     public static JSONArray getLocationData(String locationName){
         // replace any whitespace in location name to + to adhere to API's request format
         locationName = locationName.replaceAll(" ", "+");
 
-        // build API url with location parameter
+        // megcsinalja az API url - t a helyseg parameterevel
         String urlString = "https://geocoding-api.open-meteo.com/v1/search?name=" +
                 locationName + "&count=10&language=en&format=json";
 
         try{
-            // call api and get a response
+            // meghivja az API - t es valaszol
             HttpURLConnection conn = fetchApiResponse(urlString);
 
-            // check response status
-            // 200 means successful connection
+            // megnezzuk a valaszt
+            // 200 azt jelenti hogy sikeres volt a csatlakozas
             if(conn.getResponseCode() != 200){
                 System.out.println("Error: Could not connect to API");
                 return null;
             }else{
-                // store the API results
+                // eltaroljuk az eredmenyt
                 StringBuilder resultJson = new StringBuilder();
                 Scanner scanner = new Scanner(conn.getInputStream());
 
-                // read and store the resulting json data into our string builder
+                // kiolvassa es eltarolja az eredmenyezett json adatot a string builder be
                 while(scanner.hasNext()){
                     resultJson.append(scanner.nextLine());
                 }
 
-                // close scanner
+                // scanner bezarasa
                 scanner.close();
 
-                // close url connection
+                // url kapcsolat bezarasa
                 conn.disconnect();
 
-                // parse the JSON string into a JSON obj
+                // json string atalakitasa objektumma
                 JSONParser parser = new JSONParser();
                 JSONObject resultsJsonObj = (JSONObject) parser.parse(String.valueOf(resultJson));
 
-                // get the list of location data the API gtenerated from the lcoation name
+                // lista a hely adatokkal amit az API generalt a helyseg nevekbol
                 JSONArray locationData = (JSONArray) resultsJsonObj.get("results");
                 return locationData;
             }
@@ -143,38 +143,38 @@ public class WeatherApp {
             e.printStackTrace();
         }
 
-        // couldn't find location
+        // nem talalja a helyseget
         return null;
     }
 
     private static HttpURLConnection fetchApiResponse(String urlString){
         try{
-            // attempt to create connection
+            // lehetoseg hogy lerrehozza a kapcsolatot
             URL url = new URL(urlString);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
-            // set request method to get
+            // beallitja a metodus kereset
             conn.setRequestMethod("GET");
 
-            // connect to our API
+            // hozzakapcsolodik az API hoz
             conn.connect();
             return conn;
         }catch(IOException e){
             e.printStackTrace();
         }
 
-        // could not make connection
+        // ha nem tudja letrehozni a kapcsolatot
         return null;
     }
 
     private static int findIndexOfCurrentTime(JSONArray timeList){
         String currentTime = getCurrentTime();
 
-        // iterate through the time list and see which one matches our current time
+        // vegigmegyunk az idokon es megnezzuk hogy melyik hasonlo a mi jelenlegi idonkhoz
         for(int i = 0; i < timeList.size(); i++){
             String time = (String) timeList.get(i);
             if(time.equalsIgnoreCase(currentTime)){
-                // return the index
+                // visszateriti az indexet
                 return i;
             }
         }
@@ -183,43 +183,36 @@ public class WeatherApp {
     }
 
     private static String getCurrentTime(){
-        // get current date and time
+        // jelenlegi datum es ido
         LocalDateTime currentDateTime = LocalDateTime.now();
 
-        // format date to be 2023-09-02T00:00 (this is how is is read in the API)
+        // formatum 2024-05-04T00:00 igy olvassa ki
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH':00'");
 
-        // format and print the current date and time
+        // a jelenlegi datum es ido formazasa es kiirasa
         String formattedDateTime = currentDateTime.format(formatter);
 
         return formattedDateTime;
     }
 
-    // convert the weather code to something more readable
+    // idojaras kodot alakit olvashatova
     private static String convertWeatherCode(long weathercode){
         String weatherCondition = "";
         if(weathercode == 0L){
             // clear
-            weatherCondition = "Clear";
+            weatherCondition = "Tiszta";
         }else if(weathercode > 0L && weathercode <= 3L){
             // cloudy
-            weatherCondition = "Cloudy";
+            weatherCondition = "Felhős";
         }else if((weathercode >= 51L && weathercode <= 67L)
                     || (weathercode >= 80L && weathercode <= 99L)){
             // rain
-            weatherCondition = "Rain";
+            weatherCondition = "Eső";
         }else if(weathercode >= 71L && weathercode <= 77L){
             // snow
-            weatherCondition = "Snow";
+            weatherCondition = "Hó";
         }
 
         return weatherCondition;
     }
 }
-
-
-
-
-
-
-
